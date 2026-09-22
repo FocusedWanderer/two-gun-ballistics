@@ -1,1 +1,130 @@
-PLACEHOLDER_LOAD_FROM_FILE
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Two-Gun Ballistic Trajectory Comparator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <h1>Two-Gun Ballistic Trajectory Comparator</h1>
+  <p>Stage planning with weight, power factor, and wind drift — not precision DOPE.</p>
+</header>
+<div class="wrap">
+  <div class="grid">
+    <aside class="panel">
+      <h2>Compare slots</h2>
+      <div id="slots"></div>
+      <button type="button" class="add-btn" id="addSlot">+ Add load to compare</button>
+
+      <h2 style="margin-top:1rem">Power / velocity</h2>
+      <div id="pfBlock">
+        <label>9mm power factor: <span class="readout" id="pfLabel">125</span> PF</label>
+        <input type="range" id="pfSlider" min="120" max="200" step="1" value="125" />
+        <p class="hint">PF = weight (gr) × velocity (fps) / 1000. Raises effective MV for 9mm slots.</p>
+      </div>
+      <div id="trimBlock" style="display:none">
+        <label>Rifle velocity trim: <span class="readout" id="trimLabel">0%</span></label>
+        <input type="range" id="trimSlider" min="-10" max="10" step="1" value="0" />
+      </div>
+
+      <h2 style="margin-top:1rem">Wind</h2>
+      <label>Speed: <span class="readout" id="windSpeedLabel">10 mph</span></label>
+      <input type="range" id="windSpeed" min="0" max="30" step="1" value="10" />
+      <div class="toggles" id="windUnitToggles">
+        <button type="button" data-wunit="mph" class="active">mph</button>
+        <button type="button" data-wunit="mps">m/s</button>
+      </div>
+      <label for="windDirPreset">Direction</label>
+      <select id="windDirPreset">
+        <option value="cross" selected>Full-value crosswind</option>
+        <option value="head">Headwind</option>
+        <option value="tail">Tailwind</option>
+        <option value="custom">Custom degrees (from shooter)</option>
+      </select>
+      <div id="windDegWrap" style="display:none">
+        <label for="windDeg">Wind from (0–360°): <span class="readout" id="windDegLabel">90°</span></label>
+        <input type="range" id="windDeg" min="0" max="360" step="5" value="90" />
+        <p class="hint">0° = headwind, 90°/270° = full cross, 180° = tailwind.</p>
+      </div>
+      <p class="hint">Default: 10 mph full-value crosswind. Drift ≈ wind_fps × TOF × 12 × crosswind_factor (inches).</p>
+
+      <h2 style="margin-top:1rem">Zero</h2>
+      <div class="toggles" id="zeroToggles">
+        <button type="button" data-zero="25">25</button>
+        <button type="button" data-zero="50">50</button>
+        <button type="button" data-zero="100" class="active">100</button>
+        <button type="button" data-zero="200">200</button>
+      </div>
+      <label for="zeroCustom">Custom zero</label>
+      <input type="number" id="zeroCustom" min="1" max="500" step="1" placeholder="optional" />
+
+      <h2 style="margin-top:1rem">Distance</h2>
+      <label>Max: <span class="readout" id="maxDistLabel">300 yd</span></label>
+      <input type="range" id="maxDist" min="25" max="500" step="5" value="300" />
+      <div class="toggles" id="unitToggles">
+        <button type="button" data-unit="yd" class="active">Yards</button>
+        <button type="button" data-unit="m">Meters</button>
+      </div>
+
+      <h2 style="margin-top:1rem">Plot units / layers</h2>
+      <div class="toggles" id="dropToggles">
+        <button type="button" data-drop="in" class="active">Inches</button>
+        <button type="button" data-drop="moa">MOA</button>
+      </div>
+      <div class="checkrow">
+        <label><input type="checkbox" id="showDrop" checked /> Drop</label>
+        <label><input type="checkbox" id="showDrift" checked /> Wind drift</label>
+        <label><input type="checkbox" id="showVel" /> Vel (/10)</label>
+        <label><input type="checkbox" id="showEnergy" /> Energy (/10)</label>
+        <label><input type="checkbox" id="showMaxEff" checked /> Max effective markers</label>
+      </div>
+
+      <h2 style="margin-top:1rem">Max effective cutoffs</h2>
+      <label>Max drop (inches): <span class="readout" id="maxDropLabel">60</span></label>
+      <input type="number" id="maxDropIn" min="10" max="200" step="5" value="60" />
+      <label>Energy floors (ft·lb)</label>
+      <div class="fields">
+        <div><label>9mm</label><input type="number" id="e9" min="50" max="800" step="10" value="200" /></div>
+        <div><label>5.56</label><input type="number" id="e556" min="100" max="1500" step="25" value="500" /></div>
+        <div><label>.300 SS</label><input type="number" id="e300ss" min="100" max="1500" step="25" value="600" /></div>
+        <div><label>.300 Sub</label><input type="number" id="e300sub" min="50" max="1000" step="25" value="400" /></div>
+      </div>
+      <p class="hint">Marker = first distance where energy falls below that cartridge's floor OR drop exceeds max drop — whichever comes first.</p>
+    </aside>
+
+    <main>
+      <div class="panel">
+        <h2>Drop / drift vs distance</h2>
+        <div class="chart-box"><canvas id="dropChart"></canvas></div>
+      </div>
+      <div class="panel" style="margin-top:1rem">
+        <h2>Comparison</h2>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Load</th><th>Barrel</th><th>MV</th><th>PF</th>
+                <th>V @ max</th><th>Drop @ max</th>
+                <th id="thD1">Drift 100</th><th id="thD2">Drift 200</th><th id="thD3">Drift 300</th>
+                <th>Energy @ max</th><th>Max eff.</th><th>Note</th>
+              </tr>
+            </thead>
+            <tbody id="cmpBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="notes">
+    <strong>Assumptions:</strong> Point-mass + simplified G1 drag, standard atmosphere (sea level).
+    Wind drift is a <strong>simplified estimate</strong>: drift_inches ≈ wind_speed_fps × time_of_flight × 12 × |sin(wind_angle)| for the crosswind component (head/tail use cos for display factor only — full-value cross uses sin=1). No Coriolis, spin drift, or aerodynamic jump.
+    Max-effective markers use energy floor or drop ceiling (whichever first). Fine for stage planning, not precision rifle work. Chart.js from CDN once, then offline from cache.
+  </div>
+</div>
+<script src="app-part1.js"></script>
+<script src="app-part2.js"></script>
+</body>
+</html>
