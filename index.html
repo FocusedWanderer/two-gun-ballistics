@@ -5,7 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Two-Gun Ballistic Trajectory Comparator</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/FocusedWanderer/two-gun-ballistics@main/styles.css" />
+<style>
+:root {
+    --bg:#0f1419; --panel:#1a2332; --border:#2d3a4d; --text:#e7ecf3;
+    --muted:#8b9bb4; --accent:#3d9cf0; --good:#3ecf8e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+  header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--panel)}
+  header h1{margin:0 0 .25rem;font-size:1.25rem;font-weight:650}
+  header p{margin:0;color:var(--muted);font-size:.9rem}
+  .wrap{max-width:1240px;margin:0 auto;padding:1rem 1.25rem 2rem}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:1rem}
+  @media(max-width:960px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1rem}
+  .panel h2{margin:0 0 .75rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  label{display:block;font-size:.82rem;color:var(--muted);margin:.55rem 0 .25rem}
+  select,input[type=number],input[type=range]{
+    width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);
+    border-radius:6px;padding:.4rem .55rem
+  }
+  .toggles{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.3rem}
+  .toggles button{
+    flex:1;background:var(--bg);color:var(--muted);border:1px solid var(--border);
+    border-radius:6px;padding:.38rem .45rem;cursor:pointer;font-size:.82rem
+  }
+  .toggles button.active{background:#1e3a5f;color:var(--accent);border-color:var(--accent)}
+  .slot{border:1px solid var(--border);border-radius:8px;padding:.65rem;margin-bottom:.55rem;background:#121a24}
+  .slot-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem}
+  .slot-head .title{font-weight:600;font-size:.9rem}
+  .slot-head button{width:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:.2rem .45rem;cursor:pointer;font-size:.75rem}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:.4rem .5rem}
+  .fields .full{grid-column:1/-1}
+  .swatch{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:.35rem;vertical-align:middle}
+  .chart-box{position:relative;height:390px}
+  table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:.5rem}
+  th,td{text-align:left;padding:.45rem .45rem;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-size:.68rem;text-transform:uppercase}
+  .notes{margin-top:1rem;font-size:.82rem;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem}
+  .notes strong{color:var(--text)}
+  .readout{color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums}
+  .add-btn{width:100%;margin-top:.25rem;background:#152033;color:var(--accent);border:1px dashed var(--accent);border-radius:8px;padding:.55rem;cursor:pointer;font-weight:600}
+  .hint{font-size:.75rem;color:var(--muted);margin:.25rem 0 0}
+  .checkrow{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.35rem}
+  .checkrow label{display:inline-flex;gap:.35rem;align-items:center;margin:0;color:var(--text)}
+
+</style>
 </head>
 <body>
 <header>
@@ -124,7 +169,8 @@
     Max-effective markers use energy floor or drop ceiling (whichever first). Fine for stage planning, not precision rifle work. Chart.js from CDN once, then offline from cache.
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/gh/FocusedWanderer/two-gun-ballistics@main/app-part1.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/FocusedWanderer/two-gun-ballistics@main/app-part2.js"></script>
+<script>
+PLACEHOLDER_INLINE_JS
+</script>
 </body>
 </html>
